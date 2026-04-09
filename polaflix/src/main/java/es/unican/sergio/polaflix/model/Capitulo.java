@@ -20,6 +20,7 @@ public class Capitulo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idCap;
+    private int numeroCap;
     private String titulo;
     private String descripcion;
     

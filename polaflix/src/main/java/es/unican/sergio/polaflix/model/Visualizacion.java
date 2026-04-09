@@ -1,7 +1,5 @@
 package es.unican.sergio.polaflix.model;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,8 +22,6 @@ public class Visualizacion {
     
     private int numeroTemp;
     private int numeroCap;
-    private LocalDateTime fecha;
-    private double cargo;
     
     @ManyToOne
     private ProgresoSerie progresoSerie;
