@@ -44,12 +44,44 @@ public class Serie {
 
     // Operaciones del Aggregate Root
     public Capitulo getCapitulo(int numeroTemp, int numeroCap) {
-        // TODO: Implementar búsqueda
-        return null; 
+        if (temporadas == null) {
+            return null;
+        }
+        for (Temporada temporada : temporadas) {
+            if (temporada == null || temporada.getNumeroTemp() != numeroTemp || temporada.getCapitulos() == null) {
+                continue;
+            }
+            for (Capitulo capitulo : temporada.getCapitulos()) {
+                if (capitulo != null && capitulo.getNumeroCap() == numeroCap) {
+                    return capitulo;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean esUltimoCap(int numeroTemp, int numeroCap) {
-        // TODO: Implementar lógica
-        return false; 
+        if (temporadas == null || temporadas.isEmpty()) {
+            return false;
+        }
+        Temporada ultimaTemporada = null;
+        for (Temporada temporada : temporadas) {
+            if (temporada == null) {
+                continue;
+            }
+            if (ultimaTemporada == null || temporada.getNumeroTemp() > ultimaTemporada.getNumeroTemp()) {
+                ultimaTemporada = temporada;
+            }
+        }
+        if (ultimaTemporada == null || ultimaTemporada.getCapitulos() == null || ultimaTemporada.getCapitulos().isEmpty()) {
+            return false;
+        }
+        int maxCapitulo = -1;
+        for (Capitulo capitulo : ultimaTemporada.getCapitulos()) {
+            if (capitulo != null && capitulo.getNumeroCap() > maxCapitulo) {
+                maxCapitulo = capitulo.getNumeroCap();
+            }
+        }
+        return ultimaTemporada.getNumeroTemp() == numeroTemp && maxCapitulo == numeroCap;
     }
 }

@@ -36,6 +36,19 @@ public class Factura {
     private Usuario usuario;
     
     public void calcularImporteTotal() {
-        //TODO
+        double costeVisualizaciones = 0.0;
+        if (entradas != null) {
+            for (EntradaFactura entrada : entradas) {
+                if (entrada != null) {
+                    costeVisualizaciones += entrada.getCargo();
+                }
+            }
+        }
+
+        if (usuario != null && usuario.getSuscripcion() != null) {
+            importeTotal = usuario.getSuscripcion().calcularCosteFinal(costeVisualizaciones);
+        } else {
+            importeTotal = costeVisualizaciones;
+        }
     }
 }
