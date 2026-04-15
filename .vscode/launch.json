@@ -4,7 +4,7 @@
             "type": "java",
             "name": "Spring Boot-PolaflixApplication<polaflix>",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/polaflix",
             "mainClass": "es.unican.sergio.polaflix.PolaflixApplication",
             "projectName": "polaflix",
             "args": "",

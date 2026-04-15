@@ -2,6 +2,7 @@ package es.unican.sergio.polaflix;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -21,20 +22,19 @@ import es.unican.sergio.polaflix.repository.UsuarioRepository;
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
-    private final UsuarioRepository usuarioRepository;
-    private final SerieRepository serieRepository;
-    private final PersonaRepository personaRepository;
+    @Autowired
+    protected UsuarioRepository usuarioRepository;
 
-    // Inyección de dependencias por constructor. 
-    public DatabaseSeeder(UsuarioRepository usuarioRepository, 
-                          SerieRepository serieRepository, 
-                          PersonaRepository personaRepository) {
-        this.usuarioRepository = usuarioRepository;
-        this.serieRepository = serieRepository;
-        this.personaRepository = personaRepository;
-    }
+    @Autowired
+    protected SerieRepository serieRepository;
 
-    // Este método se ejecutará automáticamente justo después de que arranque la aplicación
+    @Autowired
+    protected PersonaRepository personaRepository;
+
+    private Persona vince;
+    private Persona bryan;
+    private Persona aaron;
+
     @Override
     public void run(String... args) throws Exception {
         
@@ -42,20 +42,28 @@ public class DatabaseSeeder implements CommandLineRunner {
         System.out.println("⏳ Cargando catálogo y usuarios en Polaflix...");
         System.out.println("=========================================================");
 
-        // --- 1. CREACIÓN DE PERSONAS ---
-        Persona vince = new Persona(); 
-        vince.setNombrePersona("Vince Gilligan");
-        
-        Persona bryan = new Persona(); 
-        bryan.setNombrePersona("Bryan Cranston");
-        
-        Persona aaron = new Persona(); 
-        aaron.setNombrePersona("Aaron Paul");
-        
-        // Guardamos las personas primero usando su propio repositorio
-        personaRepository.saveAll(Arrays.asList(vince, bryan, aaron));
+        seedPersonas();
+        seedSeries();
+        seedUsuarios();
 
-        // --- 2. CREACIÓN DE SERIES Y SU ESTRUCTURA (Agregado de Catálogo) ---
+        System.out.println("✅ ¡Datos cargados! Catálogo y usuarios listos en la BD.");
+        System.out.println("=========================================================");
+    }
+
+    private void seedPersonas() {
+        vince = new Persona();
+        vince.setNombrePersona("Vince Gilligan");
+
+        bryan = new Persona();
+        bryan.setNombrePersona("Bryan Cranston");
+
+        aaron = new Persona();
+        aaron.setNombrePersona("Aaron Paul");
+
+        personaRepository.saveAll(Arrays.asList(vince, bryan, aaron));
+    }
+
+    private void seedSeries() {
         Serie breakingBad = new Serie();
         breakingBad.setTitulo("Breaking Bad");
         breakingBad.setSinopsis("Un profesor de química se vuelve narco para pagar su tratamiento.");
@@ -74,38 +82,30 @@ public class DatabaseSeeder implements CommandLineRunner {
         c1.setDescripcion("Walter descubre su cáncer y cocina por primera vez.");
         c1.setTemporada(t1); // Enganchamos el capítulo a la temporada
 
-        // Montamos la composición en memoria (De Padre a Hijo)
         t1.setCapitulos(Arrays.asList(c1));
         breakingBad.setTemporadas(Arrays.asList(t1));
 
-        // Magia de JPA: Al guardar la serie, por el 'CascadeType.ALL', 
-        // se guardan automáticamente las temporadas y sus capítulos en H2
         serieRepository.save(breakingBad);
+    }
 
-        // --- 3. CREACIÓN DE USUARIOS ---
-        // Creamos a Paco con Suscripción Fija
-        SuscripcionFija subFija = new SuscripcionFija(); // Ya tiene la cuota de 20.0 por el constructor
-        
+    private void seedUsuarios() {
+        SuscripcionFija subFija = new SuscripcionFija();
+
         Usuario paco = new Usuario();
         paco.setNombreUsuario("Paco");
         paco.setContrasena("1234");
         paco.setCuentaBancaria("ES111122223333");
         paco.setSuscripcion(subFija);
 
-        // Creamos a Lola con Suscripción Bajo Demanda
         SuscripcionBajoDemanda subVariable = new SuscripcionBajoDemanda();
-        
+
         Usuario lola = new Usuario();
         lola.setNombreUsuario("Lola");
         lola.setContrasena("5678");
         lola.setCuentaBancaria("ES999988887777");
         lola.setSuscripcion(subVariable);
 
-        // Guardamos los usuarios en la base de datos usando el Repositorio
         usuarioRepository.save(paco);
         usuarioRepository.save(lola);
-
-        System.out.println("✅ ¡Datos cargados! Catálogo y usuarios listos en la BD.");
-        System.out.println("=========================================================");
     }
 }
