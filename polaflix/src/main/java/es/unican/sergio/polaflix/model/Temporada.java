@@ -22,7 +22,7 @@ import lombok.Setter;
 public class Temporada {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idTemp; 
     
     private int numeroTemp;

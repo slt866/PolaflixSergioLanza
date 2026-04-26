@@ -18,7 +18,7 @@ import lombok.Setter;
 @Setter
 public class Capitulo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long idCap;
     private int numeroCap;
     private String titulo;

@@ -22,7 +22,7 @@ import lombok.Setter;
 // Aggregate Root
 public class Factura {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idFactura;
     
     private double importeTotal;

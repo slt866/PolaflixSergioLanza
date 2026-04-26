@@ -13,6 +13,10 @@ public class SuscripcionFija extends Suscripcion {
         this.cuotaMensual = 20.0;
     }
 
+    public double getCuotaMensual() {
+        return this.cuotaMensual;
+    }
+
     @Override
     public double calcularCosteFinal(double costeVisualizaciones) {
         return this.cuotaMensual;

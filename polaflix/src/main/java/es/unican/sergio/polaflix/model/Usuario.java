@@ -25,7 +25,7 @@ import lombok.Setter;
 // Aggregate Root
 public class Usuario {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idUsuario;
     
     private String nombreUsuario;

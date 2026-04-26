@@ -20,7 +20,7 @@ import lombok.Setter;
 // Value Object (Snapshot)
 public class EntradaFactura {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idEntradaFactura;
     
     private LocalDateTime fecha;

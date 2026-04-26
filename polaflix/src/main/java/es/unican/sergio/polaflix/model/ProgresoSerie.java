@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 public class ProgresoSerie {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idProgreso;
     
     private int ultimaTempVista;

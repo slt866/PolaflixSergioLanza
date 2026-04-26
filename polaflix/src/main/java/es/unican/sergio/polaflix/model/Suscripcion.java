@@ -18,7 +18,7 @@ import lombok.Setter;
 public abstract class Suscripcion {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idSuscripcion;
     
     public abstract double calcularCosteFinal(double costeVisualizaciones);
