@@ -29,8 +29,8 @@ public class EntradaFactura {
     private int numeroCap;
     
     @ManyToOne
-    private Serie serieFacturada;
+    private Factura factura;
     
     @ManyToOne
-    private Factura factura;
+    private Serie serieFacturada;
 }

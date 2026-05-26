@@ -26,4 +26,11 @@ public class Capitulo {
     
     @ManyToOne
     private Temporada temporada;
+
+    public Capitulo(int numeroCap, String titulo, String descripcion, Temporada temporada) {
+        this.numeroCap = numeroCap;
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.temporada = temporada;
+    }
 }

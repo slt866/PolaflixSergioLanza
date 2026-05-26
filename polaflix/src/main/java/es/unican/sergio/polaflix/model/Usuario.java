@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import es.unican.sergio.polaflix.model.Visualizacion;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -47,9 +49,16 @@ public class Usuario {
     
     @OneToOne
     private Factura facturaActual;
-    
+
     @OneToMany(mappedBy = "usuario")
     private List<Factura> facturas;
+
+    public Usuario(String nombreUsuario, String contrasena, String cuentaBancaria, Suscripcion suscripcion) {
+        this.nombreUsuario = nombreUsuario;
+        this.contrasena = contrasena;
+        this.cuentaBancaria = cuentaBancaria;
+        this.suscripcion = suscripcion;
+    }
 
     // Operaciones del Aggregate Root
     public void agregarSerie(Serie serie) {
@@ -87,37 +96,107 @@ public class Usuario {
             progreso.setVisualizaciones(new ArrayList<>());
         }
 
+        Visualizacion existente = buscaVisualizacion(progreso, temp, cap);
+        if (existente != null) {
+            progreso.getVisualizaciones().remove(existente);
+            if (progreso.getVisualizaciones().isEmpty()) {
+                progreso.setUltimaTempVista(0);
+                progreso.setUltimoCapVisto(0);
+                moverSerieAPendientes(serie);
+                return;
+            }
+            actualizarUltimoCapVisto(progreso);
+            actualizarEstadoSerie(serie, progreso);
+            return;
+        }
+
         Visualizacion visualizacion = new Visualizacion();
         visualizacion.setNumeroTemp(temp);
         visualizacion.setNumeroCap(cap);
         visualizacion.setProgresoSerie(progreso);
         progreso.getVisualizaciones().add(visualizacion);
 
-        progreso.setUltimaTempVista(temp);
-        progreso.setUltimoCapVisto(cap);
-
+        actualizarUltimoCapVisto(progreso);
         if (seriesPendientes != null) {
             seriesPendientes.removeIf(s -> mismaSerie(s, serie));
         }
+        actualizarEstadoSerie(serie, progreso);
+    }
 
-        if (esSerieTerminada(serie)) {
-            if (seriesEmpezadas != null) {
-                seriesEmpezadas.removeIf(s -> mismaSerie(s, serie));
+    private Visualizacion buscaVisualizacion(ProgresoSerie progreso, int temp, int cap) {
+        if (progreso == null || progreso.getVisualizaciones() == null) {
+            return null;
+        }
+        for (Visualizacion visualizacion : progreso.getVisualizaciones()) {
+            if (visualizacion != null && visualizacion.getNumeroTemp() == temp && visualizacion.getNumeroCap() == cap) {
+                return visualizacion;
             }
+        }
+        return null;
+    }
+
+    private void actualizarUltimoCapVisto(ProgresoSerie progreso) {
+        int maxTemp = 0;
+        int maxCap = 0;
+        for (Visualizacion visualizacion : progreso.getVisualizaciones()) {
+            if (visualizacion == null) {
+                continue;
+            }
+            if (visualizacion.getNumeroTemp() > maxTemp ||
+                    (visualizacion.getNumeroTemp() == maxTemp && visualizacion.getNumeroCap() > maxCap)) {
+                maxTemp = visualizacion.getNumeroTemp();
+                maxCap = visualizacion.getNumeroCap();
+            }
+        }
+        progreso.setUltimaTempVista(maxTemp);
+        progreso.setUltimoCapVisto(maxCap);
+    }
+
+    private void actualizarEstadoSerie(Serie serie, ProgresoSerie progreso) {
+        if (seriesPendientes != null) {
+            seriesPendientes.removeIf(s -> mismaSerie(s, serie));
+        }
+        if (seriesEmpezadas != null) {
+            seriesEmpezadas.removeIf(s -> mismaSerie(s, serie));
+        }
+        if (seriesTerminadas != null) {
+            seriesTerminadas.removeIf(s -> mismaSerie(s, serie));
+        }
+
+        if (progreso.getVisualizaciones() == null || progreso.getVisualizaciones().isEmpty()) {
+            moverSerieAPendientes(serie);
+            return;
+        }
+
+        if (serie.esUltimoCap(progreso.getUltimaTempVista(), progreso.getUltimoCapVisto())) {
             if (seriesTerminadas == null) {
                 seriesTerminadas = new ArrayList<>();
             }
             if (!containsSerie(seriesTerminadas, serie)) {
                 seriesTerminadas.add(serie);
             }
-            return;
-        }
-
-        if (!containsSerie(seriesEmpezadas, serie)) {
+        } else {
             if (seriesEmpezadas == null) {
                 seriesEmpezadas = new ArrayList<>();
             }
-            seriesEmpezadas.add(serie);
+            if (!containsSerie(seriesEmpezadas, serie)) {
+                seriesEmpezadas.add(serie);
+            }
+        }
+    }
+
+    private void moverSerieAPendientes(Serie serie) {
+        if (seriesEmpezadas != null) {
+            seriesEmpezadas.removeIf(s -> mismaSerie(s, serie));
+        }
+        if (seriesTerminadas != null) {
+            seriesTerminadas.removeIf(s -> mismaSerie(s, serie));
+        }
+        if (seriesPendientes == null) {
+            seriesPendientes = new ArrayList<>();
+        }
+        if (!containsSerie(seriesPendientes, serie)) {
+            seriesPendientes.add(serie);
         }
     }
 

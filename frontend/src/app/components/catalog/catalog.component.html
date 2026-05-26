@@ -1,0 +1,49 @@
+<section class="catalog-shell">
+  <div class="catalog-header">
+    <div>
+      <h2>Catálogo de Series</h2>
+      <p>Usuario <strong>{{ userId }}</strong>: explora el catálogo y añade series a pendientes.</p>
+    </div>
+    <a [routerLink]="['/']" class="btn btn-secondary">← Volver</a>
+  </div>
+
+  <div *ngIf="loading" class="status-box">Cargando catálogo...</div>
+  <div *ngIf="errorMessage" class="status-box status-error">{{ errorMessage }}</div>
+  <div *ngIf="message" class="status-box status-success">{{ message }}</div>
+
+  <div *ngIf="series.length > 0" class="series-container">
+    <div class="catalog-controls">
+      <div class="alpha-bar">
+        <button *ngFor="let ch of initials" class="alpha-btn" [class.active]="selectedInitial===ch" (click)="setInitial(ch)">{{ ch }}</button>
+        <button class="alpha-btn" [class.active]="selectedInitial==='0-9'" (click)="setInitial('0-9')">0-9</button>
+      </div>
+
+      <div class="search-box">
+        <input type="text" placeholder="Buscar serie por nombre" [(ngModel)]="searchTerm" (keyup.enter)="searchByName()" />
+        <button class="btn btn-primary" (click)="searchByName()">Buscar</button>
+      </div>
+    </div>
+
+    <div class="series-list">
+      <div *ngIf="displayedSeries.length===0" class="status-box">No hay series para la inicial seleccionada.</div>
+      <ul>
+        <li *ngFor="let serie of displayedSeries" [id]="'serie-'+serie.idSerie" class="serie-item" [class.highlight]="highlightedSerieId===serie.idSerie">
+          <div class="serie-row">
+            <h3 class="serie-titulo" (click)="viewSerieDetail(serie)">{{ serie.titulo }}</h3>
+            <a class="add-link" href="#" (click)="addPending(serie); $event.preventDefault(); $event.stopPropagation()">{{ isSerieAdded(serie) ? '✓ Agregada' : 'Agregar' }}</a>
+          </div>
+
+          <div *ngIf="expandedSerieId===serie.idSerie" class="inline-detail">
+            <p class="serie-sinopsis">{{ serie.sinopsis }}</p>
+            <div *ngIf="serie.creadores && serie.creadores.length" class="detail-section">
+              <strong>Creadores:</strong> {{ getCreadoresFor(serie) }}
+            </div>
+            <div *ngIf="serie.actores && serie.actores.length" class="detail-section">
+              <strong>Actores:</strong> {{ getActoresFor(serie) }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

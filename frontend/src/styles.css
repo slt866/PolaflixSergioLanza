@@ -1,0 +1,27 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #eef1fb;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1b1b2f;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+.btn {
+  cursor: pointer;
+  border: none;
+}
+
+button:disabled,
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -42,6 +42,12 @@ public class Serie {
     @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Temporada> temporadas;
 
+    public Serie(String titulo, String sinopsis, TipoSerie tipo) {
+        this.titulo = titulo;
+        this.sinopsis = sinopsis;
+        this.tipo = tipo;
+    }
+
     // Operaciones del Aggregate Root
     public Capitulo getCapitulo(int numeroTemp, int numeroCap) {
         if (temporadas == null) {

@@ -33,4 +33,10 @@ public class Temporada {
     
     @ManyToOne
     private Serie serie;
+
+    public Temporada(int numeroTemp, String titulo, Serie serie) {
+        this.numeroTemp = numeroTemp;
+        this.titulo = titulo;
+        this.serie = serie;
+    }
 }

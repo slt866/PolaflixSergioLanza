@@ -1,0 +1,110 @@
+<section class="home-container">
+  <header class="home-header">
+    <div class="header-content">
+      <h1>Bienvenido {{ userName }}</h1>
+      <div class="header-actions">
+        <a class="btn btn-primary" [routerLink]="['/catalogo', userId]">+ Agregar Serie</a>
+        <button class="btn btn-secondary" type="button">Ver cargos</button>
+      </div>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="status-box">Cargando series...</div>
+  <div *ngIf="errorMessage" class="status-box status-error">{{ errorMessage }}</div>
+
+  <!-- Modal para mostrar detalles de la serie o catálogo -->
+  <div *ngIf="showSerieDetail" class="modal-overlay" (click)="closeSerieDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <!-- Modo: Ver detalles de serie seleccionada -->
+      <div *ngIf="selectedSerie" class="serie-detail">
+        <button class="btn-close" (click)="closeSerieDetail()">✕</button>
+        
+        <div class="serie-header">
+          <h2>{{ selectedSerie.titulo }}</h2>
+          <p class="sinopsis">{{ selectedSerie.sinopsis }}</p>
+        </div>
+
+        <div *ngIf="getCreadores()" class="serie-info">
+          <h3>Creadores</h3>
+          <p>{{ getCreadores() }}</p>
+        </div>
+
+        <div *ngIf="getActores()" class="serie-info">
+          <h3>Actores</h3>
+          <p>{{ getActores() }}</p>
+        </div>
+
+        <div class="temporadas-section" *ngIf="selectedSerie.temporadas && selectedSerie.temporadas.length > 0">
+          <h3>Temporadas</h3>
+          <div *ngFor="let temporada of selectedSerie.temporadas" class="temporada">
+            <h4>{{ temporada.titulo || 'Temporada ' + temporada.numeroTemp }}</h4>
+            <div class="capitulos">
+              <div *ngFor="let capitulo of temporada.capitulos" class="capitulo">
+                <span class="cap-title">{{ capitulo.titulo || 'Capítulo ' + capitulo.numeroCap }}</span>
+                <button
+                  class="btn btn-small"
+                  [ngClass]="{ 'btn-secondary': isChapterWatched(temporada.numeroTemp, capitulo.numeroCap), 'btn-primary': !isChapterWatched(temporada.numeroTemp, capitulo.numeroCap) }"
+                  (click)="markChapterAsWatched(temporada.numeroTemp, capitulo.numeroCap)"
+                  type="button"
+                >
+                  {{ isChapterWatched(temporada.numeroTemp, capitulo.numeroCap) ? 'Desmarcar visto' : 'Marcar visto' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secciones de series -->
+  <div class="series-sections" *ngIf="!loading">
+    <!-- Series Pendientes -->
+    <section class="series-section">
+      <h2>Series Pendientes</h2>
+      <div *ngIf="seriesPendientes.length === 0" class="empty-message">
+        No tienes series pendientes. ¡Agrega una!
+      </div>
+      <div *ngIf="seriesPendientes.length > 0" class="series-row">
+        <div *ngFor="let serie of seriesPendientes" class="serie-item" (click)="viewSerieDetail(serie)">
+          <div class="serie-cover">
+            <h4>{{ serie.titulo }}</h4>
+            <span class="status-badge">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Series Empezadas -->
+    <section class="series-section">
+      <h2>Series Empezadas</h2>
+      <div *ngIf="seriesEmpezadas.length === 0" class="empty-message">
+        Aún no has empezado ninguna serie.
+      </div>
+      <div *ngIf="seriesEmpezadas.length > 0" class="series-row">
+        <div *ngFor="let serie of seriesEmpezadas" class="serie-item" (click)="viewSerieDetail(serie)">
+          <div class="serie-cover">
+            <h4>{{ serie.titulo }}</h4>
+            <span class="status-badge status-started">En progreso</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Series Terminadas -->
+    <section class="series-section">
+      <h2>Series Terminadas</h2>
+      <div *ngIf="seriesTerminadas.length === 0" class="empty-message">
+        No has terminado ninguna serie.
+      </div>
+      <div *ngIf="seriesTerminadas.length > 0" class="series-row">
+        <div *ngFor="let serie of seriesTerminadas" class="serie-item" (click)="viewSerieDetail(serie)">
+          <div class="serie-cover">
+            <h4>{{ serie.titulo }}</h4>
+            <span class="status-badge status-completed">Completada</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>

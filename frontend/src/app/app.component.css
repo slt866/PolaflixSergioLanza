@@ -1,0 +1,40 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f6fb;
+  color: #1b1b2f;
+}
+
+.topbar {
+  background: #3f51b5;
+  color: white;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+}
+
+.footer {
+  text-align: center;
+  padding: 14px 0;
+  font-size: 0.9rem;
+  color: #5a5a7e;
+}
