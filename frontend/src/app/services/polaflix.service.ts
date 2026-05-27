@@ -1,8 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
+export interface ApiResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+  errorCode?: string;
+  timestamp?: string;
+}
 
 export interface Capitulo {
   idCap: number;
@@ -69,59 +77,86 @@ export class PolaflixService {
   // ====== Métodos de Series ======
   getSeries(): Observable<Serie[]> {
     return this.http
-      .get<Serie[]>(`${this.apiUrl}/series`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Serie[]>>(`${this.apiUrl}/series`, this.httpOptions)
+      .pipe(
+        map(response => response.data ?? []),
+        catchError(this.handleError)
+      );
   }
 
   getSerieById(serieId: number): Observable<Serie> {
     return this.http
-      .get<Serie>(`${this.apiUrl}/series/${serieId}`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Serie>>(`${this.apiUrl}/series/${serieId}`, this.httpOptions)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
   // ====== Métodos de Usuario ======
   getUsuarioById(usuarioId: number): Observable<Usuario> {
     return this.http
-      .get<Usuario>(`${this.apiUrl}/usuarios/${usuarioId}`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Usuario>>(`${this.apiUrl}/usuarios/${usuarioId}`, this.httpOptions)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
   // ====== Métodos de Series del Usuario ======
   addSeriePendiente(usuarioId: number, serieId: number): Observable<Usuario> {
     return this.http
-      .post<Usuario>(`${this.apiUrl}/usuarios/${usuarioId}/series/${serieId}`, {}, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .post<ApiResponse<Usuario>>(`${this.apiUrl}/usuarios/${usuarioId}/series/${serieId}`, {}, this.httpOptions)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
   getSeriesPendientes(usuarioId: number): Observable<Serie[]> {
     return this.http
-      .get<Serie[]>(`${this.apiUrl}/usuarios/${usuarioId}/series/pendientes`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Serie[]>>(`${this.apiUrl}/usuarios/${usuarioId}/series/pendientes`, this.httpOptions)
+      .pipe(
+        map(response => response.data ?? []),
+        catchError(this.handleError)
+      );
   }
 
   getSeriesEmpezadas(usuarioId: number): Observable<Serie[]> {
     return this.http
-      .get<Serie[]>(`${this.apiUrl}/usuarios/${usuarioId}/series/empezadas`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Serie[]>>(`${this.apiUrl}/usuarios/${usuarioId}/series/empezadas`, this.httpOptions)
+      .pipe(
+        map(response => response.data ?? []),
+        catchError(this.handleError)
+      );
   }
 
   getSeriesTerminadas(usuarioId: number): Observable<Serie[]> {
     return this.http
-      .get<Serie[]>(`${this.apiUrl}/usuarios/${usuarioId}/series/terminadas`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<Serie[]>>(`${this.apiUrl}/usuarios/${usuarioId}/series/terminadas`, this.httpOptions)
+      .pipe(
+        map(response => response.data ?? []),
+        catchError(this.handleError)
+      );
   }
 
   // ====== Métodos de Progreso ======
   marcarCapituloVisto(usuarioId: number, serieId: number, temp: number, cap: number): Observable<Usuario> {
     return this.http
-      .post<Usuario>(`${this.apiUrl}/usuarios/${usuarioId}/capitulos/visto?serieId=${serieId}&temp=${temp}&cap=${cap}`, {}, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .post<ApiResponse<Usuario>>(`${this.apiUrl}/usuarios/${usuarioId}/capitulos/visto?serieId=${serieId}&temp=${temp}&cap=${cap}`, {}, this.httpOptions)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
   getProgresoSerie(usuarioId: number, serieId: number): Observable<ProgresoSerie> {
     return this.http
-      .get<ProgresoSerie>(`${this.apiUrl}/usuarios/${usuarioId}/progreso/${serieId}`, this.httpOptions)
-      .pipe(catchError(this.handleError));
+      .get<ApiResponse<ProgresoSerie>>(`${this.apiUrl}/usuarios/${usuarioId}/progreso/${serieId}`, this.httpOptions)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
   // ====== Métodos de Temporadas ======

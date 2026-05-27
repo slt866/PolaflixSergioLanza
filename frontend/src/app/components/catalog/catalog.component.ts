@@ -14,6 +14,7 @@ import { PolaflixService, Serie } from '../../services/polaflix.service';
 })
 export class CatalogComponent implements OnInit {
   userId = 0;
+  userName = '';
   series: Serie[] = [];
   initials: string[] = [];
   selectedInitial = 'A';
@@ -37,6 +38,7 @@ export class CatalogComponent implements OnInit {
           this.userId = Number(params.get('usuarioId') ?? 0);
           this.errorMessage = '';
           this.message = '';
+          this.loadUsuario();
         }),
         switchMap(() => this.polaflixService.getSeries())
       )
@@ -106,6 +108,23 @@ export class CatalogComponent implements OnInit {
             });
           }
         });
+      }
+    });
+  }
+
+  loadUsuario(): void {
+    if (!this.userId) {
+      return;
+    }
+
+    this.polaflixService.getUsuarioById(this.userId).subscribe({
+      next: (usuario) => {
+        if (usuario?.nombreUsuario) {
+          this.userName = usuario.nombreUsuario;
+        }
+      },
+      error: () => {
+        // No bloqueamos la carga si la información del usuario no está disponible.
       }
     });
   }

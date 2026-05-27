@@ -19,13 +19,51 @@ import lombok.Setter;
 
 import es.unican.sergio.polaflix.model.Visualizacion;
 
+/**
+ * Entidad Usuario - Aggregate Root
+ * 
+ * Representa a un usuario registrado en el sistema Polaflix.
+ * 
+ * JUSTIFICACIÓN DE ESTRATEGIAS JPA:
+ * 
+ * @GeneratedValue(strategy = GenerationType.AUTO)
+ * - Se usa AUTO para delegar la estrategia al proveedor JPA, permitiendo portabilidad
+ *   entre bases de datos. Cada BD seleccionará la mejor estrategia (IDENTITY, SEQUENCE, TABLE)
+ * 
+ * @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+ * en progresosSeries:
+ * - cascade = CascadeType.ALL: Los cambios en Usuario se propagan a ProgresoSerie
+ * - orphanRemoval = true: Si se elimina un ProgresoSerie del Usuario, se elimina de BD
+ * - JUSTIFICACIÓN: ProgresoSerie es una entidad débil del Usuario (no existe sin Usuario),
+ *   así que los huérfanos deben ser eliminados automáticamente.
+ * 
+ * @ManyToMany en series (pendientes, empezadas, terminadas):
+ * - Relaciones entre Usuario y Serie sin cascade ni orphanRemoval
+ * - JUSTIFICACIÓN: Una Serie puede existir sin Usuario y un Usuario puede existir sin Series.
+ *   No hay relación padre-hijo, solo una asociación. Los huérfanos no aplican aquí.
+ *   Un Usuario puede dejar de ver una serie sin que la Serie sea eliminada.
+ * 
+ * @ManyToOne(cascade = CascadeType.ALL) en suscripcion:
+ * - cascade = CascadeType.ALL: Los cambios en suscripción se propagan al Usuario
+ * - NOTA: Esto podría revisarse - podría ser CascadeType.MERGE, CascadeType.PERSIST
+ *   si la Suscripción debe ser compartida entre usuarios
+ * 
+ * @OneToMany(mappedBy = "usuario") en facturas:
+ * - SIN cascade ni orphanRemoval
+ * - JUSTIFICACIÓN: Las Facturas son históricas y no pueden ser eliminadas al eliminar Usuario
+ *   (requisito legal). Se mantienen de forma permanente en la BD.
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Getter
 @Setter
-// Aggregate Root
 public class Usuario {
+    /**
+     * Identificador único del usuario.
+     * Estrategia AUTO: Permite que el proveedor JPA elija la mejor estrategia de generación
+     * de acuerdo a la base de datos utilizada.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idUsuario;
@@ -34,22 +72,54 @@ public class Usuario {
     private String contrasena;
     private String cuentaBancaria;
     
+    /**
+     * Relación con la Suscripción del usuario.
+     * cascade = ALL: Si el usuario es eliminado, su suscripción también.
+     */
     @ManyToOne(cascade = CascadeType.ALL)
     private Suscripcion suscripcion;
 
+    /**
+     * Progreso del usuario en las series vistas.
+     * cascada = ALL con orphanRemoval = true porque ProgresoSerie es una entidad débil
+     * del Usuario - no existe independientemente.
+     */
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true) 
     private List<ProgresoSerie> progresosSeries;
     
+    /**
+     * Series que el usuario tiene en lista de pendientes.
+     * Sin cascade ni orphanRemoval porque:
+     * - Las Series pueden existir sin Usuario (son del catálogo)
+     * - Un Usuario puede dejar de ver una serie sin eliminarla del sistema
+     */
     @ManyToMany 
     private List<Serie> seriesPendientes;
+    
+    /**
+     * Series que el usuario está actualmente viendo.
+     */
     @ManyToMany 
     private List<Serie> seriesEmpezadas;
+    
+    /**
+     * Series que el usuario ha completado.
+     */
     @ManyToMany 
     private List<Serie> seriesTerminadas;
     
+    /**
+     * Factura actual (abierta) del usuario.
+     * Sin cascade porque la Factura es un documento histórico.
+     */
     @OneToOne
     private Factura facturaActual;
 
+    /**
+     * Historial de todas las facturas del usuario.
+     * Sin cascade ni orphanRemoval porque las Facturas son documentos históricos
+     * que no deben ser eliminados incluso si se elimina el Usuario.
+     */
     @OneToMany(mappedBy = "usuario")
     private List<Factura> facturas;
 

@@ -28,7 +28,25 @@ export class HomeComponent implements OnInit {
   constructor(private polaflixService: PolaflixService) {}
 
   ngOnInit(): void {
+    this.loadUsuario();
     this.loadAllSeries();
+  }
+
+  loadUsuario(): void {
+    if (!this.userId) {
+      return;
+    }
+
+    this.polaflixService.getUsuarioById(this.userId).subscribe({
+      next: (usuario) => {
+        if (usuario?.nombreUsuario) {
+          this.userName = usuario.nombreUsuario;
+        }
+      },
+      error: () => {
+        // No interrumpimos la carga de la página si el usuario no puede obtenerse.
+      }
+    });
   }
 
   loadAllSeries(): void {

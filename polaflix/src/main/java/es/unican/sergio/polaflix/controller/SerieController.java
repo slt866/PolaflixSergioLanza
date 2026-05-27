@@ -1,18 +1,29 @@
 package es.unican.sergio.polaflix.controller;
 
+import es.unican.sergio.polaflix.dto.ApiResponse;
+import es.unican.sergio.polaflix.dto.CapituloDTO;
 import es.unican.sergio.polaflix.dto.SerieDTO;
 import es.unican.sergio.polaflix.dto.TemporadaDTO;
-import es.unican.sergio.polaflix.dto.CapituloDTO;
+import es.unican.sergio.polaflix.exception.SerieNotFoundException;
 import es.unican.sergio.polaflix.model.TipoSerie;
 import es.unican.sergio.polaflix.service.SerieService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controlador REST para la gestión de series de catálogo.
+ * 
+ * NOTA: Este controlador solo proporciona endpoints para LEER información del catálogo.
+ * 
+ * Los endpoints para crear, actualizar y eliminar series (administración del catálogo)
+ * NO están disponibles aquí. Se asume que existirá un servicio separado de BACKOFFICE
+ * para la administración del catálogo de series, gestionado por administradores.
+ * 
+ * Los usuarios solo pueden consultar series disponibles y gestionar su lista personal de series.
+ */
 @RestController
 @RequestMapping("/series")
 public class SerieController {
@@ -20,135 +31,146 @@ public class SerieController {
     @Autowired
     private SerieService serieService;
 
+    /**
+     * GET /series
+     * Obtiene el catálogo completo de series disponibles.
+     * 
+     * @return ApiResponse con lista de todas las series (200 OK)
+     */
     @GetMapping
-    public ResponseEntity<List<SerieDTO>> getAllSeries() {
+    public ResponseEntity<ApiResponse<List<SerieDTO>>> getAllSeries() {
         List<SerieDTO> series = serieService.findAll();
-        return ResponseEntity.ok(series);
+        return ResponseEntity.ok(ApiResponse.success(series, "Series obtenidas exitosamente"));
     }
 
+    /**
+     * GET /series/{id}
+     * Obtiene los detalles completos de una serie específica.
+     * 
+     * @param id ID de la serie
+     * @return ApiResponse con datos de la serie (200 OK)
+     * @throws SerieNotFoundException si la serie no existe
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<SerieDTO> getSerieById(@PathVariable Long id) {
-        return serieService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<SerieDTO>> getSerieById(@PathVariable Long id) {
+        SerieDTO serie = serieService.findById(id)
+                .orElseThrow(() -> new SerieNotFoundException(id));
+        return ResponseEntity.ok(ApiResponse.success(serie, "Serie obtenida exitosamente"));
     }
 
-    @PostMapping
-    public ResponseEntity<SerieDTO> createSerie(@Valid @RequestBody SerieDTO serieDTO) {
-        SerieDTO saved = serieService.save(serieDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<SerieDTO> updateSerie(@PathVariable Long id, @Valid @RequestBody SerieDTO serieDTO) {
-        if (!serieService.findById(id).isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        serieDTO.setIdSerie(id);
-        SerieDTO updated = serieService.save(serieDTO);
-        return ResponseEntity.ok(updated);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<SerieDTO> patchSerie(@PathVariable Long id, @Valid @RequestBody SerieDTO serieDTO) {
-        return serieService.patch(id, serieDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSerie(@PathVariable Long id) {
-        if (serieService.deleteById(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
+    /**
+     * GET /series/buscar/tipo
+     * Busca series por tipo (COMEDIA, DRAMA, etc.).
+     * 
+     * @param tipo tipo de serie a buscar
+     * @return ApiResponse con lista de series del tipo especificado (200 OK)
+     */
     @GetMapping("/buscar/tipo")
-    public ResponseEntity<List<SerieDTO>> getSeriesByTipo(@RequestParam TipoSerie tipo) {
+    public ResponseEntity<ApiResponse<List<SerieDTO>>> getSeriesByTipo(@RequestParam TipoSerie tipo) {
         List<SerieDTO> series = serieService.findByTipo(tipo);
-        return ResponseEntity.ok(series);
+        return ResponseEntity.ok(ApiResponse.success(series, "Series por tipo obtenidas exitosamente"));
     }
 
+    /**
+     * GET /series/buscar/titulo
+     * Busca series por título (búsqueda parcial).
+     * 
+     * @param titulo título parcial o completo a buscar
+     * @return ApiResponse con lista de series que coinciden (200 OK)
+     */
     @GetMapping("/buscar/titulo")
-    public ResponseEntity<List<SerieDTO>> getSeriesByTitulo(@RequestParam String titulo) {
+    public ResponseEntity<ApiResponse<List<SerieDTO>>> getSeriesByTitulo(@RequestParam String titulo) {
         List<SerieDTO> series = serieService.findByTitulo(titulo);
-        return ResponseEntity.ok(series);
+        return ResponseEntity.ok(ApiResponse.success(series, "Series por título obtenidas exitosamente"));
     }
 
-    // ==================== ENDPOINTS PARA TEMPORADAS ====================
+    // ==================== ENDPOINTS PARA TEMPORADAS (SOLO LECTURA) ====================
 
+    /**
+     * GET /series/{serieId}/temporadas
+     * Obtiene todas las temporadas de una serie.
+     * 
+     * @param serieId ID de la serie
+     * @return ApiResponse con lista de temporadas (200 OK)
+     * @throws SerieNotFoundException si la serie no existe
+     */
     @GetMapping("/{serieId}/temporadas")
-    public ResponseEntity<List<TemporadaDTO>> getTemporadasDeSerie(@PathVariable Long serieId) {
-        return serieService.getTemporadasDeSerie(serieId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<List<TemporadaDTO>>> getTemporadasDeSerie(@PathVariable Long serieId) {
+        List<TemporadaDTO> temporadas = serieService.getTemporadasDeSerie(serieId)
+                .orElseThrow(() -> new SerieNotFoundException(serieId));
+        return ResponseEntity.ok(ApiResponse.success(temporadas, "Temporadas obtenidas exitosamente"));
     }
 
+    /**
+     * GET /series/{serieId}/temporadas/{temporadaId}
+     * Obtiene una temporada específica de una serie.
+     * 
+     * @param serieId ID de la serie
+     * @param temporadaId ID de la temporada
+     * @return ApiResponse con datos de la temporada (200 OK)
+     * @throws SerieNotFoundException si la serie no existe
+     */
     @GetMapping("/{serieId}/temporadas/{temporadaId}")
-    public ResponseEntity<TemporadaDTO> getTemporadaDeSerie(@PathVariable Long serieId, @PathVariable Long temporadaId) {
-        return serieService.getTemporadaDeSerie(serieId, temporadaId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<TemporadaDTO>> getTemporadaDeSerie(@PathVariable Long serieId, 
+                                                                          @PathVariable Long temporadaId) {
+        TemporadaDTO temporada = serieService.getTemporadaDeSerie(serieId, temporadaId)
+                .orElseThrow(() -> new SerieNotFoundException(serieId));
+        return ResponseEntity.ok(ApiResponse.success(temporada, "Temporada obtenida exitosamente"));
     }
 
-    @PostMapping("/{serieId}/temporadas")
-    public ResponseEntity<TemporadaDTO> createTemporadaEnSerie(@PathVariable Long serieId, @Valid @RequestBody TemporadaDTO temporadaDTO) {
-        return serieService.createTemporadaEnSerie(serieId, temporadaDTO)
-                .map(temporada -> ResponseEntity.status(HttpStatus.CREATED).body(temporada))
-                .orElse(ResponseEntity.notFound().build());
-    }
+    // ==================== ENDPOINTS PARA CAPÍTULOS (SOLO LECTURA) ====================
 
-    @PutMapping("/{serieId}/temporadas/{temporadaId}")
-    public ResponseEntity<TemporadaDTO> updateTemporadaDeSerie(@PathVariable Long serieId, @PathVariable Long temporadaId, @Valid @RequestBody TemporadaDTO temporadaDTO) {
-        return serieService.updateTemporadaDeSerie(serieId, temporadaId, temporadaDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{serieId}/temporadas/{temporadaId}")
-    public ResponseEntity<Void> deleteTemporadaDeSerie(@PathVariable Long serieId, @PathVariable Long temporadaId) {
-        if (serieService.deleteTemporadaDeSerie(serieId, temporadaId).orElse(false)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    // ==================== ENDPOINTS PARA CAPÍTULOS ====================
-
+    /**
+     * GET /series/{serieId}/temporadas/{temporadaId}/capitulos
+     * Obtiene todos los capítulos de una temporada.
+     * 
+     * @param serieId ID de la serie
+     * @param temporadaId ID de la temporada
+     * @return ApiResponse con lista de capítulos (200 OK)
+     * @throws SerieNotFoundException si la serie no existe
+     */
     @GetMapping("/{serieId}/temporadas/{temporadaId}/capitulos")
-    public ResponseEntity<List<CapituloDTO>> getCapitulosDeTemporada(@PathVariable Long serieId, @PathVariable Long temporadaId) {
-        return serieService.getCapitulosDeTemporada(serieId, temporadaId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<List<CapituloDTO>>> getCapitulosDeTemporada(@PathVariable Long serieId, 
+                                                                                    @PathVariable Long temporadaId) {
+        List<CapituloDTO> capitulos = serieService.getCapitulosDeTemporada(serieId, temporadaId)
+                .orElseThrow(() -> new SerieNotFoundException(serieId));
+        return ResponseEntity.ok(ApiResponse.success(capitulos, "Capítulos obtenidos exitosamente"));
     }
 
+    /**
+     * GET /series/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
+     * Obtiene un capítulo específico de una temporada.
+     * 
+     * @param serieId ID de la serie
+     * @param temporadaId ID de la temporada
+     * @param capituloId ID del capítulo
+     * @return ApiResponse con datos del capítulo (200 OK)
+     * @throws SerieNotFoundException si la serie no existe
+     */
     @GetMapping("/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}")
-    public ResponseEntity<CapituloDTO> getCapituloDeTemporada(@PathVariable Long serieId, @PathVariable Long temporadaId, @PathVariable Long capituloId) {
-        return serieService.getCapituloDeTemporada(serieId, temporadaId, capituloId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<CapituloDTO>> getCapituloDeTemporada(@PathVariable Long serieId, 
+                                                                             @PathVariable Long temporadaId, 
+                                                                             @PathVariable Long capituloId) {
+        CapituloDTO capitulo = serieService.getCapituloDeTemporada(serieId, temporadaId, capituloId)
+                .orElseThrow(() -> new SerieNotFoundException(serieId));
+        return ResponseEntity.ok(ApiResponse.success(capitulo, "Capítulo obtenido exitosamente"));
     }
 
-    @PostMapping("/{serieId}/temporadas/{temporadaId}/capitulos")
-    public ResponseEntity<CapituloDTO> createCapituloEnTemporada(@PathVariable Long serieId, @PathVariable Long temporadaId, @Valid @RequestBody CapituloDTO capituloDTO) {
-        return serieService.createCapituloEnTemporada(serieId, temporadaId, capituloDTO)
-                .map(capitulo -> ResponseEntity.status(HttpStatus.CREATED).body(capitulo))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}")
-    public ResponseEntity<CapituloDTO> updateCapituloDeTemporada(@PathVariable Long serieId, @PathVariable Long temporadaId, @PathVariable Long capituloId, @Valid @RequestBody CapituloDTO capituloDTO) {
-        return serieService.updateCapituloDeTemporada(serieId, temporadaId, capituloId, capituloDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}")
-    public ResponseEntity<Void> deleteCapituloDeTemporada(@PathVariable Long serieId, @PathVariable Long temporadaId, @PathVariable Long capituloId) {
-        if (serieService.deleteCapituloDeTemporada(serieId, temporadaId, capituloId).orElse(false)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
-    }
+    // ==================== NOTA SOBRE ENDPOINTS DE ADMINISTRACIÓN ====================
+    // 
+    // Los siguientes endpoints NO están disponibles en este controlador:
+    // - POST /series (crear serie)
+    // - PUT /series/{id} (actualizar serie)
+    // - PATCH /series/{id} (actualizar parcialmente)
+    // - DELETE /series/{id} (eliminar serie)
+    // - POST /{serieId}/temporadas
+    // - PUT /{serieId}/temporadas/{temporadaId}
+    // - DELETE /{serieId}/temporadas/{temporadaId}
+    // - POST /{serieId}/temporadas/{temporadaId}/capitulos
+    // - PUT /{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
+    // - DELETE /{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
+    //
+    // Estos endpoints son funcionalidad de BACKOFFICE (administración) y deben
+    // estar disponibles en un servicio separado de administración, no en la API
+    // pública para usuarios.
 }
