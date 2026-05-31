@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class FacturaService {
 
     @Autowired
@@ -30,12 +30,14 @@ public class FacturaService {
                 .map(this::convertToDTO);
     }
 
+    @Transactional
     public FacturaDTO save(FacturaDTO facturaDTO) {
         Factura factura = convertToEntity(facturaDTO);
         Factura saved = facturaRepository.save(factura);
         return convertToDTO(saved);
     }
 
+    @Transactional
     public Optional<FacturaDTO> patch(Long id, FacturaDTO facturaDTO) {
         return facturaRepository.findById(id)
                 .map(factura -> {
@@ -53,6 +55,7 @@ public class FacturaService {
                 });
     }
 
+    @Transactional
     public boolean deleteById(Long id) {
         if (facturaRepository.existsById(id)) {
             facturaRepository.deleteById(id);
@@ -95,9 +98,7 @@ public class FacturaService {
         dto.setCargo(entrada.getCargo());
         dto.setNumeroTemp(entrada.getNumeroTemp());
         dto.setNumeroCap(entrada.getNumeroCap());
-        // Assuming EntradaFactura has a Serie reference, but from model it doesn't directly
-        // For simplicity, set to null or handle accordingly
-        dto.setSerieTitulo("Unknown"); // Placeholder
+        dto.setSerieTitulo("Unknown");
         return dto;
     }
 }

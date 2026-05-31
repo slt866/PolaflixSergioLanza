@@ -59,19 +59,6 @@ public class SerieController {
     }
 
     /**
-     * GET /series/buscar/tipo
-     * Busca series por tipo (COMEDIA, DRAMA, etc.).
-     * 
-     * @param tipo tipo de serie a buscar
-     * @return ApiResponse con lista de series del tipo especificado (200 OK)
-     */
-    @GetMapping("/buscar/tipo")
-    public ResponseEntity<ApiResponse<List<SerieDTO>>> getSeriesByTipo(@RequestParam TipoSerie tipo) {
-        List<SerieDTO> series = serieService.findByTipo(tipo);
-        return ResponseEntity.ok(ApiResponse.success(series, "Series por tipo obtenidas exitosamente"));
-    }
-
-    /**
      * GET /series/buscar/titulo
      * Busca series por título (búsqueda parcial).
      * 
@@ -100,77 +87,4 @@ public class SerieController {
                 .orElseThrow(() -> new SerieNotFoundException(serieId));
         return ResponseEntity.ok(ApiResponse.success(temporadas, "Temporadas obtenidas exitosamente"));
     }
-
-    /**
-     * GET /series/{serieId}/temporadas/{temporadaId}
-     * Obtiene una temporada específica de una serie.
-     * 
-     * @param serieId ID de la serie
-     * @param temporadaId ID de la temporada
-     * @return ApiResponse con datos de la temporada (200 OK)
-     * @throws SerieNotFoundException si la serie no existe
-     */
-    @GetMapping("/{serieId}/temporadas/{temporadaId}")
-    public ResponseEntity<ApiResponse<TemporadaDTO>> getTemporadaDeSerie(@PathVariable Long serieId, 
-                                                                          @PathVariable Long temporadaId) {
-        TemporadaDTO temporada = serieService.getTemporadaDeSerie(serieId, temporadaId)
-                .orElseThrow(() -> new SerieNotFoundException(serieId));
-        return ResponseEntity.ok(ApiResponse.success(temporada, "Temporada obtenida exitosamente"));
-    }
-
-    // ==================== ENDPOINTS PARA CAPÍTULOS (SOLO LECTURA) ====================
-
-    /**
-     * GET /series/{serieId}/temporadas/{temporadaId}/capitulos
-     * Obtiene todos los capítulos de una temporada.
-     * 
-     * @param serieId ID de la serie
-     * @param temporadaId ID de la temporada
-     * @return ApiResponse con lista de capítulos (200 OK)
-     * @throws SerieNotFoundException si la serie no existe
-     */
-    @GetMapping("/{serieId}/temporadas/{temporadaId}/capitulos")
-    public ResponseEntity<ApiResponse<List<CapituloDTO>>> getCapitulosDeTemporada(@PathVariable Long serieId, 
-                                                                                    @PathVariable Long temporadaId) {
-        List<CapituloDTO> capitulos = serieService.getCapitulosDeTemporada(serieId, temporadaId)
-                .orElseThrow(() -> new SerieNotFoundException(serieId));
-        return ResponseEntity.ok(ApiResponse.success(capitulos, "Capítulos obtenidos exitosamente"));
-    }
-
-    /**
-     * GET /series/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
-     * Obtiene un capítulo específico de una temporada.
-     * 
-     * @param serieId ID de la serie
-     * @param temporadaId ID de la temporada
-     * @param capituloId ID del capítulo
-     * @return ApiResponse con datos del capítulo (200 OK)
-     * @throws SerieNotFoundException si la serie no existe
-     */
-    @GetMapping("/{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}")
-    public ResponseEntity<ApiResponse<CapituloDTO>> getCapituloDeTemporada(@PathVariable Long serieId, 
-                                                                             @PathVariable Long temporadaId, 
-                                                                             @PathVariable Long capituloId) {
-        CapituloDTO capitulo = serieService.getCapituloDeTemporada(serieId, temporadaId, capituloId)
-                .orElseThrow(() -> new SerieNotFoundException(serieId));
-        return ResponseEntity.ok(ApiResponse.success(capitulo, "Capítulo obtenido exitosamente"));
-    }
-
-    // ==================== NOTA SOBRE ENDPOINTS DE ADMINISTRACIÓN ====================
-    // 
-    // Los siguientes endpoints NO están disponibles en este controlador:
-    // - POST /series (crear serie)
-    // - PUT /series/{id} (actualizar serie)
-    // - PATCH /series/{id} (actualizar parcialmente)
-    // - DELETE /series/{id} (eliminar serie)
-    // - POST /{serieId}/temporadas
-    // - PUT /{serieId}/temporadas/{temporadaId}
-    // - DELETE /{serieId}/temporadas/{temporadaId}
-    // - POST /{serieId}/temporadas/{temporadaId}/capitulos
-    // - PUT /{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
-    // - DELETE /{serieId}/temporadas/{temporadaId}/capitulos/{capituloId}
-    //
-    // Estos endpoints son funcionalidad de BACKOFFICE (administración) y deben
-    // estar disponibles en un servicio separado de administración, no en la API
-    // pública para usuarios.
 }

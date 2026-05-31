@@ -24,7 +24,6 @@ import es.unican.sergio.polaflix.repository.PersonaRepository;
 import es.unican.sergio.polaflix.repository.SerieRepository;
 import es.unican.sergio.polaflix.repository.UsuarioRepository;
 
-// @Component le dice a Spring: "Oye, cuando arranques, busca esta clase y gestiónala"
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
@@ -181,7 +180,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         usuarioRepository.saveAll(Arrays.asList(paco, lola, carlos, maria, sergio, ana));
 
-        // Crear facturas de ejemplo
         Factura facturaPaco = new Factura();
         facturaPaco.setMes(10);
         facturaPaco.setAno(2023);

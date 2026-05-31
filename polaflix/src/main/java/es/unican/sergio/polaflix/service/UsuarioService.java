@@ -23,7 +23,7 @@ import es.unican.sergio.polaflix.repository.SerieRepository;
 import es.unican.sergio.polaflix.repository.UsuarioRepository;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class UsuarioService {
 
     @Autowired
@@ -43,12 +43,14 @@ public class UsuarioService {
                 .map(this::convertToDTO);
     }
 
+    @Transactional
     public UsuarioDTO save(UsuarioDTO usuarioDTO) {
         Usuario usuario = convertToEntity(usuarioDTO);
         Usuario saved = usuarioRepository.save(usuario);
         return convertToDTO(saved);
     }
 
+    @Transactional
     public Optional<UsuarioDTO> patch(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id)
                 .map(usuario -> {
@@ -66,6 +68,7 @@ public class UsuarioService {
                 });
     }
 
+    @Transactional
     public boolean deleteById(Long id) {
         if (usuarioRepository.existsById(id)) {
             usuarioRepository.deleteById(id);
@@ -119,6 +122,7 @@ public class UsuarioService {
     }
 
     // Métodos para gestionar series del usuario
+    @Transactional
     public Optional<UsuarioDTO> addSeriePendiente(Long usuarioId, Long serieId) {
         return usuarioRepository.findById(usuarioId)
                 .flatMap(usuario -> serieRepository.findById(serieId)
@@ -165,6 +169,7 @@ public class UsuarioService {
                 });
     }
 
+    @Transactional
     public Optional<UsuarioDTO> marcarCapituloVisto(Long usuarioId, Long serieId, int temp, int cap) {
         return usuarioRepository.findById(usuarioId)
                 .flatMap(usuario -> serieRepository.findById(serieId)
@@ -199,34 +204,56 @@ public class UsuarioService {
 
     public Optional<ProgresoSerieDTO> getProgresoSerie(Long usuarioId, Long serieId) {
         return usuarioRepository.findById(usuarioId)
-                .flatMap(usuario -> serieRepository.findById(serieId)
-                        .flatMap(serie -> {
-                            if (usuario.getProgresosSeries() == null) {
-                                return Optional.empty();
-                            }
-                            return usuario.getProgresosSeries().stream()
-                                    .filter(progreso -> progreso.getSerie().getIdSerie().equals(serieId))
-                                    .findFirst()
-                                    .map(this::convertProgresoToDTO);
-                        }));
+                .flatMap(usuario -> {
+                    if (usuario.getProgresosSeries() != null) {
+                        Optional<es.unican.sergio.polaflix.model.ProgresoSerie> progresoOpt = usuario.getProgresosSeries().stream()
+                                .filter(progreso -> progreso.getSerie() != null && progreso.getSerie().getIdSerie().equals(serieId))
+                                .findFirst();
+                        if (progresoOpt.isPresent()) {
+                            return progresoOpt.map(this::convertProgresoToDTO);
+                        }
+                    }
+                    return serieRepository.findById(serieId)
+                            .map(this::createEmptyProgresoDTO);
+                });
+    }
+
+    private ProgresoSerieDTO createEmptyProgresoDTO(Serie serie) {
+        ProgresoSerieDTO dto = new ProgresoSerieDTO();
+        dto.setSerie(convertSerieToDTO(serie));
+        dto.setUltimaTempVista(0);
+        dto.setUltimoCapVisto(0);
+        dto.setVisualizaciones(List.of());
+        return dto;
     }
 
     public Optional<TemporadaDTO> getUltimaTempVistaDeSerie(Long usuarioId, Long serieId) {
         return usuarioRepository.findById(usuarioId)
-                .flatMap(usuario -> serieRepository.findById(serieId)
-                        .flatMap(serie -> {
-                            Temporada temporada = usuario.ultimaTempVista(serie);
-                            if (temporada != null) {
-                                return Optional.of(convertTemporadaToDTO(temporada));
-                            }
-                            return Optional.empty();
-                        }));
+                .flatMap(usuario -> {
+                    if (usuario.getProgresosSeries() == null) {
+                        return Optional.empty();
+                    }
+                    return usuario.getProgresosSeries().stream()
+                            .filter(progreso -> progreso.getSerie() != null && progreso.getSerie().getIdSerie().equals(serieId))
+                            .findFirst()
+                            .flatMap(progreso -> {
+                                Temporada temporada = usuario.ultimaTempVista(progreso.getSerie());
+                                return Optional.ofNullable(temporada).map(this::convertTemporadaToDTO);
+                            });
+                });
     }
 
     public Optional<Boolean> esSerieTerminadaPorUsuario(Long usuarioId, Long serieId) {
         return usuarioRepository.findById(usuarioId)
-                .flatMap(usuario -> serieRepository.findById(serieId)
-                        .map(serie -> usuario.esSerieTerminada(serie)));
+                .flatMap(usuario -> {
+                    if (usuario.getProgresosSeries() == null) {
+                        return Optional.empty();
+                    }
+                    return usuario.getProgresosSeries().stream()
+                            .filter(progreso -> progreso.getSerie() != null && progreso.getSerie().getIdSerie().equals(serieId))
+                            .findFirst()
+                            .map(progreso -> usuario.esSerieTerminada(progreso.getSerie()));
+                });
     }
 
     private SerieDTO convertSerieToDTO(Serie serie) {
@@ -258,6 +285,7 @@ public class UsuarioService {
             dto.setVisualizaciones(progreso.getVisualizaciones().stream()
                     .map(vis -> {
                         ProgresoSerieDTO.VisualizacionDTO visDTO = new ProgresoSerieDTO.VisualizacionDTO();
+                        visDTO.setIdVisualizacion(vis.getIdVisualizacion());
                         visDTO.setNumeroTemp(vis.getNumeroTemp());
                         visDTO.setNumeroCap(vis.getNumeroCap());
                         return visDTO;

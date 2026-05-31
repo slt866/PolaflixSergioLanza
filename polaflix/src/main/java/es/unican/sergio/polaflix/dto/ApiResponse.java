@@ -9,10 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Envoltorio genérico para todas las respuestas de la API.
- * Proporciona un modelo consistente para devolver datos, errores y metadatos.
- */
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -21,29 +18,19 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     
-    /**
-     * Código HTTP de la respuesta
-     */
+    
     private Integer status;
     
-    /**
-     * Código de error específico del negocio (ej: USER_NOT_FOUND, INVALID_SUBSCRIPTION)
-     */
+    
     private String errorCode;
     
-    /**
-     * Mensaje descriptivo para el cliente
-     */
+    
     private String message;
     
-    /**
-     * Datos devueltos en la respuesta
-     */
+    
     private T data;
     
-    /**
-     * Timestamp de la respuesta
-     */
+    
     private LocalDateTime timestamp;
     
     /**

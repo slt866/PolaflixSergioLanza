@@ -22,7 +22,7 @@ import es.unican.sergio.polaflix.repository.SerieRepository;
 import es.unican.sergio.polaflix.repository.TemporadaRepository;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class SerieService {
 
     @Autowired
@@ -48,12 +48,14 @@ public class SerieService {
                 .map(this::convertToDTO);
     }
 
+    @Transactional
     public SerieDTO save(SerieDTO serieDTO) {
         Serie serie = convertToEntity(serieDTO);
         Serie saved = serieRepository.save(serie);
         return convertToDTO(saved);
     }
 
+    @Transactional
     public Optional<SerieDTO> patch(Long id, SerieDTO serieDTO) {
         return serieRepository.findById(id)
                 .map(serie -> {
@@ -71,6 +73,7 @@ public class SerieService {
                 });
     }
 
+    @Transactional
     public boolean deleteById(Long id) {
         if (serieRepository.existsById(id)) {
             serieRepository.deleteById(id);
@@ -222,6 +225,7 @@ public class SerieService {
                         .map(this::convertTemporadaToDTO));
     }
 
+    @Transactional
     public Optional<TemporadaDTO> createTemporadaEnSerie(Long serieId, TemporadaDTO temporadaDTO) {
         return serieRepository.findById(serieId)
                 .map(serie -> {
@@ -234,6 +238,7 @@ public class SerieService {
                 });
     }
 
+    @Transactional
     public Optional<TemporadaDTO> updateTemporadaDeSerie(Long serieId, Long temporadaId, TemporadaDTO temporadaDTO) {
         return serieRepository.findById(serieId)
                 .flatMap(serie -> temporadaRepository.findById(temporadaId)
@@ -250,6 +255,7 @@ public class SerieService {
                         }));
     }
 
+    @Transactional
     public Optional<Boolean> deleteTemporadaDeSerie(Long serieId, Long temporadaId) {
         return serieRepository.findById(serieId)
                 .flatMap(serie -> temporadaRepository.findById(temporadaId)
@@ -284,6 +290,7 @@ public class SerieService {
                                 .map(this::convertCapituloToDTO)));
     }
 
+    @Transactional
     public Optional<CapituloDTO> createCapituloEnTemporada(Long serieId, Long temporadaId, CapituloDTO capituloDTO) {
         return serieRepository.findById(serieId)
                 .flatMap(serie -> temporadaRepository.findById(temporadaId)
@@ -299,6 +306,7 @@ public class SerieService {
                         }));
     }
 
+    @Transactional
     public Optional<CapituloDTO> updateCapituloDeTemporada(Long serieId, Long temporadaId, Long capituloId, CapituloDTO capituloDTO) {
         return serieRepository.findById(serieId)
                 .flatMap(serie -> temporadaRepository.findById(temporadaId)
@@ -317,9 +325,10 @@ public class SerieService {
                                     }
                                     Capitulo saved = capituloRepository.save(capitulo);
                                     return convertCapituloToDTO(saved);
-                                })));
+                                 }))); 
     }
 
+    @Transactional
     public Optional<Boolean> deleteCapituloDeTemporada(Long serieId, Long temporadaId, Long capituloId) {
         return serieRepository.findById(serieId)
                 .flatMap(serie -> temporadaRepository.findById(temporadaId)

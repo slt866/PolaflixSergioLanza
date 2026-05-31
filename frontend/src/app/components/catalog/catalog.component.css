@@ -186,6 +186,18 @@
   gap: 12px;
 }
 
+.serie-type {
+  display: inline-block;
+  margin-top: 6px;
+  background: #3f51b5;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
 .add-link {
   color: #3f51b5;
   text-decoration: none;

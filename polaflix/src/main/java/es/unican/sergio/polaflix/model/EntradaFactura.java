@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-// Value Object (Snapshot)
+
 public class EntradaFactura {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

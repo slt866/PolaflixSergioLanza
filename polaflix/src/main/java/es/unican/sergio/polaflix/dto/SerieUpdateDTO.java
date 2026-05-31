@@ -9,7 +9,6 @@ import es.unican.sergio.polaflix.model.TipoSerie;
 
 /**
  * DTO para actualizar una serie existente.
- * Solo para uso administrativo (backoffice).
  * Todos los campos son opcionales.
  */
 @NoArgsConstructor

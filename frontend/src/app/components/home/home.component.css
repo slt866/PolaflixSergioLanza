@@ -19,6 +19,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .home-header h1 {
@@ -70,8 +72,53 @@
   font-size: 0.9rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-actions .btn {
+  min-width: 165px;
+  flex: 1 1 165px;
+  text-align: center;
+}
+
+.serie-type {
+  margin: 8px 0 0;
+  color: #4a4a6b;
+  font-weight: 600;
+}
+
+.capitulo {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(79, 83, 189, 0.12);
+}
+
+.capitulo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.capitulo-header:hover {
+  background: rgba(79, 83, 189, 0.04);
+}
+
+.capitulo-descripcion {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f3f4ff;
+  color: #2c2d42;
+}
+
 .btn-close {
-  position: absolute;
   top: 20px;
   right: 20px;
   background: none;
@@ -300,9 +347,7 @@
 }
 
 .capitulo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block;
   background: white;
   padding: 12px;
   border-radius: 6px;
@@ -314,10 +359,26 @@
   border-left-color: #3f51b5;
 }
 
+.capitulo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
 .cap-title {
   color: #333;
   font-weight: 500;
   flex-grow: 1;
+}
+
+.capitulo-descripcion {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f3f4ff;
+  color: #2c2d42;
 }
 
 /* Add Serie Mode */

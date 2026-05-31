@@ -1,7 +1,7 @@
 <section class="home-container">
   <header class="home-header">
     <div class="header-content">
-      <h1>Bienvenido {{ userName }}</h1>
+      <h1>Bienvenido {{ userName || '...' }}</h1>
       <div class="header-actions">
         <a class="btn btn-primary" [routerLink]="['/catalogo', userId]">+ Agregar Serie</a>
         <button class="btn btn-secondary" type="button">Ver cargos</button>
@@ -21,6 +21,7 @@
         
         <div class="serie-header">
           <h2>{{ selectedSerie.titulo }}</h2>
+          <p class="serie-type">Tipo de serie: {{ selectedSerie.tipo | uppercase }}</p>
           <p class="sinopsis">{{ selectedSerie.sinopsis }}</p>
         </div>
 
@@ -40,16 +41,21 @@
             <h4>{{ temporada.titulo || 'Temporada ' + temporada.numeroTemp }}</h4>
             <div class="capitulos">
               <div *ngFor="let capitulo of temporada.capitulos" class="capitulo">
+              <div class="capitulo-header" (click)="toggleCapituloDescripcion(temporada.numeroTemp, capitulo.numeroCap)">
                 <span class="cap-title">{{ capitulo.titulo || 'Capítulo ' + capitulo.numeroCap }}</span>
                 <button
                   class="btn btn-small"
                   [ngClass]="{ 'btn-secondary': isChapterWatched(temporada.numeroTemp, capitulo.numeroCap), 'btn-primary': !isChapterWatched(temporada.numeroTemp, capitulo.numeroCap) }"
-                  (click)="markChapterAsWatched(temporada.numeroTemp, capitulo.numeroCap)"
+                  (click)="markChapterAsWatched(temporada.numeroTemp, capitulo.numeroCap); $event.stopPropagation();"
                   type="button"
                 >
                   {{ isChapterWatched(temporada.numeroTemp, capitulo.numeroCap) ? 'Desmarcar visto' : 'Marcar visto' }}
                 </button>
               </div>
+              <div *ngIf="isCapituloExpanded(temporada.numeroTemp, capitulo.numeroCap)" class="capitulo-descripcion">
+                {{ capitulo.descripcion }}
+              </div>
+            </div>
             </div>
           </div>
         </div>

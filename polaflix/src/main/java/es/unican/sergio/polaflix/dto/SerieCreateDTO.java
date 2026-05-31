@@ -11,7 +11,6 @@ import es.unican.sergio.polaflix.model.TipoSerie;
 
 /**
  * DTO para crear una nueva serie.
- * Solo para uso administrativo (backoffice).
  */
 @NoArgsConstructor
 @AllArgsConstructor

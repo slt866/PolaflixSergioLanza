@@ -19,7 +19,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-// Aggregate Root
+
 public class Factura {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

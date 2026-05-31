@@ -10,7 +10,6 @@ import lombok.Setter;
 
 /**
  * DTO para crear un nuevo usuario.
- * Contiene solo los campos necesarios en el formulario de registro.
  */
 @NoArgsConstructor
 @AllArgsConstructor

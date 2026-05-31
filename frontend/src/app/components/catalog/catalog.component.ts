@@ -87,7 +87,6 @@ export class CatalogComponent implements OnInit {
     this.setInitial(initial);
     this.highlightedSerieId = found.idSerie;
     this.expandedSerieId = found.idSerie;
-    // small delay to allow view to update, then scroll to element
     setTimeout(()=>{
       const el = document.getElementById('serie-'+found.idSerie);
       if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
@@ -124,13 +123,11 @@ export class CatalogComponent implements OnInit {
         }
       },
       error: () => {
-        // No bloqueamos la carga si la información del usuario no está disponible.
       }
     });
   }
 
   viewSerieDetail(serie: Serie): void {
-    // Toggle inline expansion; fetch details from API first
     if (this.expandedSerieId === serie.idSerie) {
       this.expandedSerieId = null;
     } else {

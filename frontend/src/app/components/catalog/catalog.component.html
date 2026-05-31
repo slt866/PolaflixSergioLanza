@@ -2,7 +2,7 @@
   <div class="catalog-header">
     <div>
       <h2>Catálogo de Series</h2>
-      <p>Usuario <strong>{{ userName || userId }}</strong>: explora el catálogo y añade series a pendientes.</p>
+      <p>Usuario <strong>{{ userName || '...' }}</strong>: explora el catálogo y añade series a pendientes.</p>
     </div>
     <a [routerLink]="['/']" class="btn btn-secondary">← Volver</a>
   </div>
@@ -29,7 +29,10 @@
       <ul>
         <li *ngFor="let serie of displayedSeries" [id]="'serie-'+serie.idSerie" class="serie-item" [class.highlight]="highlightedSerieId===serie.idSerie">
           <div class="serie-row">
-            <h3 class="serie-titulo" (click)="viewSerieDetail(serie)">{{ serie.titulo }}</h3>
+            <div>
+              <h3 class="serie-titulo" (click)="viewSerieDetail(serie)">{{ serie.titulo }}</h3>
+              <span class="serie-type">Tipo de serie: {{ serie.tipo | uppercase }}</span>
+            </div>
             <a class="add-link" href="#" (click)="addPending(serie); $event.preventDefault(); $event.stopPropagation()">{{ isSerieAdded(serie) ? '✓ Agregada' : 'Agregar' }}</a>
           </div>
 

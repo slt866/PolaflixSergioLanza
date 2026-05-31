@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  userName = environment.userName;
+  userName = '';
   userId = environment.userId;
   
   seriesPendientes: Serie[] = [];
@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit {
   selectedSerie: Serie | null = null;
   serieProgress: ProgresoSerie | null = null;
   showSerieDetail = false;
+  expandedChapterKey: string | null = null;
 
   constructor(private polaflixService: PolaflixService) {}
 
@@ -44,7 +45,6 @@ export class HomeComponent implements OnInit {
         }
       },
       error: () => {
-        // No interrumpimos la carga de la página si el usuario no puede obtenerse.
       }
     });
   }
@@ -86,6 +86,7 @@ export class HomeComponent implements OnInit {
       next: (serieDetailed) => {
         this.selectedSerie = serieDetailed;
         this.serieProgress = null;
+        this.expandedChapterKey = null;
         this.showSerieDetail = true;
         this.loadSerieProgress(serie.idSerie);
       },
@@ -110,6 +111,16 @@ export class HomeComponent implements OnInit {
     this.showSerieDetail = false;
     this.selectedSerie = null;
     this.serieProgress = null;
+    this.expandedChapterKey = null;
+  }
+
+  toggleCapituloDescripcion(temp: number, cap: number): void {
+    const key = `${temp}-${cap}`;
+    this.expandedChapterKey = this.expandedChapterKey === key ? null : key;
+  }
+
+  isCapituloExpanded(temp: number, cap: number): boolean {
+    return this.expandedChapterKey === `${temp}-${cap}`;
   }
 
   markChapterAsWatched(temp: number, cap: number): void {
